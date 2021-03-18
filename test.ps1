@@ -1,4 +1,3 @@
-
 function Invoke-UdfCountdownWithMessage
 {
  [CmdletBinding()]
@@ -83,4 +82,5 @@ $MenuSelection = Create-Menu "Bank" "PBE", "OCBC"
 if ($MenuSelection -eq 0) 
 {
     start https://www.pbebank.com/
+    exit
 }
