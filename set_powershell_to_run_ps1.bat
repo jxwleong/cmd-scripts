@@ -1,5 +1,5 @@
 @echo off
-Src: https://superuser.com/a/852877
+REM Src: https://superuser.com/a/852877
 REM --> add the following to the top of your bat file--
 
 :: BatchGotAdmin
