@@ -1,3 +1,11 @@
+Enum VirtualKeyCode
+{
+    ARROW_UP = 38
+    ARROW_DOWN = 40
+    ENTER = 13   
+}
+
+
 function Invoke-UdfCountdownWithMessage
 {
  [CmdletBinding()]
@@ -44,14 +52,14 @@ function Create-Menu (){
         $KeyInput = $host.ui.rawui.readkey("NoEcho,IncludeKeyDown").virtualkeycode
 
         Switch($KeyInput){
-            13{
+            $([VirtualKeyCode]::ENTER.value__){
                 $EnterPressed = $True
                 Return $Selection
                 Clear-Host
                 break
             }
 
-            38{
+            $([VirtualKeyCode]::ARROW_UP.value__){
                 If ($Selection -eq 0){
                     $Selection = $MaxValue
                 } Else {
@@ -61,7 +69,7 @@ function Create-Menu (){
                 break
             }
 
-            40{
+            $([VirtualKeyCode]::ARROW_DOWN.value__){
                 If ($Selection -eq $MaxValue){
                     $Selection = 0
                 } Else {
