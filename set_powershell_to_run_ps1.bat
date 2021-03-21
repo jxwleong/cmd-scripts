@@ -1,6 +1,6 @@
 @echo off
 Src: https://superuser.com/a/852877
-REM --add the following to the top of your bat file--
+REM --> add the following to the top of your bat file--
 
 :: BatchGotAdmin
 :-------------------------------------
@@ -29,11 +29,10 @@ if '%errorlevel%' NEQ '0' (
 :--------------------------------------
 
 :start
-echo HAHA
 echo Setting registry key (HKCR\Microsoft.PowerShellScript.1\Shell\Open\Command) default value to
 echo ("C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" "%%1")
 REG ADD HKCR\Microsoft.PowerShellScript.1\Shell\Open\Command /f /t REG_SZ /ve /d "\"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe\" \"%%1\"
 echo Ignore the "ERROR: Access is denied."
 echo Check the value via regedit.msc (Computer\HKEY_CLASSES_ROOT\Microsoft.PowerShellScript.1\Shell\Open\Command)
 REM Default value: "C:\Windows\System32\notepad.exe" "%1"
-exit /B 0
+exit /B %errorlevel%
