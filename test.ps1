@@ -2,17 +2,25 @@ Enum VirtualKeyCode
 {
     ARROW_UP = 38
     ARROW_DOWN = 40
-    ENTER = 13   
+    ENTER = 13
 }
 
+class Menu
+{
+    [String]$MenuTitle
+    [array]$MenuOptions
+    [int]$MaxValue = $MenuOptions.count-1
+    [int]$Selection = 0
+    [bool]$EnterPressed = $False
+}
 
 function Invoke-UdfCountdownWithMessage
 {
- [CmdletBinding()]
+    [CmdletBinding()]
         param (
               [string]$message = "Countdown: ",
               [int]$seconds = 5
-            )
+        )
     do {
         Write-Host -NoNewline `r"$message$seconds"
         Sleep 1
@@ -21,59 +29,66 @@ function Invoke-UdfCountdownWithMessage
 }
 
 
+function Invoke-UdfDisplayMenu
+{
+    [CmdletBinding()]
+        Param(
+            [Parameter(Mandatory=$True)][Menu]$MenuData
+        )
+    Clear-Host
+    # Wrap "$($var)" to prevent it print out the $var as string
+    # Just a way to escape it
+    Write-Host "$($MenuData.MenuTitle)"
+
+    For ($i=0; $i -le $MenuData.MaxValue; $i++){
+        If ($i -eq $MenuData.Selection){
+            Write-Host -BackgroundColor Cyan -ForegroundColor Black "[ $($MenuData.MenuOptions[$i]) ]"
+        } Else {
+            Write-Host "  $($MenuData.MenuOptions[$i])  "
+        }
+    }
+}
+
 # https://community.spiceworks.com/scripts/show/4656-powershell-create-menu-easily-add-arrow-key-driven-menu-to-scripts
-function Create-Menu (){
+function Invoke-UdfCreateMenu 
+{
     
     Param(
         [Parameter(Mandatory=$True)][String]$MenuTitle,
         [Parameter(Mandatory=$True)][array]$MenuOptions
     )
-
-    $MaxValue = $MenuOptions.count-1
-    $Selection = 0
-    $EnterPressed = $False
+    $NewMenu = New-Object Menu
+    $NewMenu.MenuTitle = $MenuTitle
+    $NewMenu.MenuOptions = $MenuOptions
+    $NewMenu.EnterPressed = $False
     
-    Clear-Host
-
-    While($EnterPressed -eq $False){
-        
-        Write-Host "$MenuTitle"
-
-        For ($i=0; $i -le $MaxValue; $i++){
-            
-            If ($i -eq $Selection){
-                Write-Host -BackgroundColor Cyan -ForegroundColor Black "[ $($MenuOptions[$i]) ]"
-            } Else {
-                Write-Host "  $($MenuOptions[$i])  "
-            }
-
-        }
-
+    While($NewMenu.EnterPressed -eq $False){
+        Invoke-UdfDisplayMenu -MenuData $NewMenu
         $KeyInput = $host.ui.rawui.readkey("NoEcho,IncludeKeyDown").virtualkeycode
 
         Switch($KeyInput){
             $([VirtualKeyCode]::ENTER.value__){
-                $EnterPressed = $True
-                Return $Selection
+                $NewMenu.EnterPressed = $True
+                Return $NewMenu.Selection
                 Clear-Host
                 break
             }
 
             $([VirtualKeyCode]::ARROW_UP.value__){
-                If ($Selection -eq 0){
-                    $Selection = $MaxValue
+                If ($NewMenu.Selection -eq 0){
+                    $NewMenu.Selection = $NewMenu.MaxValue
                 } Else {
-                    $Selection -= 1
+                    $NewMenu.Selection -= 1
                 }
                 Clear-Host
                 break
             }
 
             $([VirtualKeyCode]::ARROW_DOWN.value__){
-                If ($Selection -eq $MaxValue){
-                    $Selection = 0
+                If ($NewMenu.Selection -eq $NewMenu.MaxValue){
+                    $NewMenu.Selection = 0
                 } Else {
-                    $Selection +=1
+                    $NewMenu.Selection +=1
                 }
                 Clear-Host
                 break
@@ -86,7 +101,7 @@ function Create-Menu (){
 }
 
 #Invoke-UdfCountdownWithMessage -seconds 1
-$MenuSelection = Create-Menu "Bank" "PBE", "OCBC"
+$MenuSelection = Invoke-UdfCreateMenu "Bank" "PBE", "OCBC"
 if ($MenuSelection -eq 0) 
 {
     start https://www.pbebank.com/
