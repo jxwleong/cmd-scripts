@@ -6,11 +6,11 @@
     }
 }
 
-Write-Output "$(Get-Date) Starting CCleaner..."
+Write-Output "$(Get-Date -Format "dd/MM-/yyy HH:mm:ss.fff") Starting CCleaner..."
 CCleaner.exe /AUTO
-Write-Output "$(Get-Date) CCleaner launch status: $(Invoke-UdfGetLastOperationStatus)"
+Write-Output "$(Get-Date -Format "dd/MM-/yyy HH:mm:ss.fff") CCleaner launch status: $(Invoke-UdfGetLastOperationStatus)"
 
 # https://docs.microsoft.com/en-us/windows/security/threat-protection/microsoft-defender-antivirus/command-line-arguments-microsoft-defender-antivirus
-Write-Output "$(Get-Date) Starting Microsoft Defender with Quick Scan"
+Write-Output "$(Get-Date -Format "dd/MM-/yyy HH:mm:ss.fff") Starting Microsoft Defender with Quick Scan"
 MpCmdRun.exe -Scan -ScanType 1
-Write-Output "$(Get-Date) Microsoft Defender status: $(Invoke-UdfGetLastOperationStatus)"
+Write-Output "$(Get-Date -Format "dd/MM-/yyy HH:mm:ss.fff") Microsoft Defender status: $(Invoke-UdfGetLastOperationStatus)"
