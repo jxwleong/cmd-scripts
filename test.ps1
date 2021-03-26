@@ -12,6 +12,7 @@ class Menu
     [int]$MaxValue = $MenuOptions.count-1
     [int]$Selection = 0
     [bool]$EnterPressed = $False
+    [int]$Timeout = 5
 }
 
 function Invoke-UdfCountdownWithMessage
@@ -52,7 +53,7 @@ function Invoke-UdfDisplayMenu
 # https://community.spiceworks.com/scripts/show/4656-powershell-create-menu-easily-add-arrow-key-driven-menu-to-scripts
 function Invoke-UdfCreateMenu 
 {
-    
+    [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$True)][String]$MenuTitle,
         [Parameter(Mandatory=$True)][array]$MenuOptions
@@ -61,11 +62,16 @@ function Invoke-UdfCreateMenu
     $NewMenu.MenuTitle = $MenuTitle
     $NewMenu.MenuOptions = $MenuOptions
     $NewMenu.EnterPressed = $False
-    
-    While($NewMenu.EnterPressed -eq $False){
+
+    While($NewMenu.EnterPressed -eq $False`
+          -and $NewMenu.Timeout -gt 0){
         Invoke-UdfDisplayMenu -MenuData $NewMenu
         $KeyInput = $host.ui.rawui.readkey("NoEcho,IncludeKeyDown").virtualkeycode
-
+        Write-Host $KeyInput
+        If ($NewMenu.Timeout -eq 0){
+            Return $NewMenu.Selection
+            Clear-Host                   
+        }
         Switch($KeyInput){
             $([VirtualKeyCode]::ENTER.value__){
                 $NewMenu.EnterPressed = $True
@@ -80,7 +86,6 @@ function Invoke-UdfCreateMenu
                 } Else {
                     $NewMenu.Selection -= 1
                 }
-                Clear-Host
                 break
             }
 
@@ -90,13 +95,18 @@ function Invoke-UdfCreateMenu
                 } Else {
                     $NewMenu.Selection +=1
                 }
-                Clear-Host
                 break
             }
-            Default{
-                Clear-Host
-            }
+            #Default{
+            #    Write-Host "HAHAHAHHA"
+            #    Clear-Host
+            #    break
+            #}
         }
+        Write-Host -NoNewline `r"$message$($NewMenu.Timeout)"
+        Sleep 1
+        $NewMenu.Timeout--
+        Clear-Host
     }
 }
 
