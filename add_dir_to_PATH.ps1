@@ -55,39 +55,15 @@ function Udf-AddDirToPath{
         # "Machine" => "User" to set User variables
         Log-Message "Adding $Path to `$env:Path."
         $NewPath = -join($env:Path, ";$(Udf-GetDir)")
-        Log-Message $NewPath
+        #Log-Message $NewPath
         [Environment]::SetEnvironmentVariable("Path", $NewPath, "Machine")
         [Environment]::SetEnvironmentVariable("Path", $NewPath, "Process")
-        Log-Message "NEW Path: $env:Path"
-        #[Environment]::SetEnvironmentVariable(
-    #"Path",
-    #[Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine) + ";$Newpath",
-    #[EnvironmentVariableTarget]::Machine)
-        # For cmd
-        refreshenv
-        # https://stackoverflow.com/a/22670892
-        foreach($level in "Machine","User") {
-            [Environment]::GetEnvironmentVariables($level)
-         }
-        Log-Message "Try restart the system if no PATH is not updated."
+        #Log-Message "NEW Path: $env:Path"
+        Log-Message "Reboot is required to update PATH."
     }
 
 }
 
-# https://stackoverflow.com/a/37024745
-function Set-Path ([string]$newPath, [bool]$permanent=$false, [bool]$forMachine=$false )
-{
-    $Env:Path += ";$newPath"
-
-    $scope = if ($forMachine) { 'Machine' } else { 'User' }
-
-    if ($permanent)
-    {
-        $command = "[Environment]::SetEnvironmentVariable('PATH', $env:Path, $scope)"
-        Start-Process -FilePath powershell.exe -ArgumentList "-noprofile -command $Command" -Verb runas
-    }
-
-}
 function Udf-RemoveDirFromPath
 {
     [CmdletBinding()]
@@ -105,10 +81,10 @@ function Udf-RemoveDirFromPath
         Log-Message "Removing $Path from `$env:Path."
         $Remove = $Path
         $env:Path = ($env:Path.Split(';') | Where-Object -FilterScript {$_ -ne $Remove}) -join ';'
-        Log-Message "New `$env:Path: $env:Path"
         [Environment]::SetEnvironmentVariable("Path", $env:Path, "Machine")
+        [Environment]::SetEnvironmentVariable("Path", $env:Path, "Process")
         refreshenv
-        Log-Message "Try restart the system if no PATH is not updated."
+        Log-Message "Reboot is required to update PATH."
     }
     else
     {
@@ -119,36 +95,6 @@ function Udf-RemoveDirFromPath
 
 }
 
-# https://stackoverflow.com/a/34844707
-function Add-EnvPath {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string] $Path,
-
-        [ValidateSet('Machine', 'User', 'Session')]
-        [string] $Container = 'Session'
-    )
-
-    if ($Container -ne 'Session') {
-        $containerMapping = @{
-            Machine = [EnvironmentVariableTarget]::Machine
-            User = [EnvironmentVariableTarget]::User
-        }
-        $containerType = $containerMapping[$Container]
-
-        $persistedPaths = [Environment]::GetEnvironmentVariable('Path', $containerType) -split ';'
-        if ($persistedPaths -notcontains $Path) {
-            $persistedPaths = $persistedPaths + $Path | where { $_ }
-            [Environment]::SetEnvironmentVariable('Path', $persistedPaths -join ';', $containerType)
-        }
-    }
-
-    $envPaths = $env:Path -split ';'
-    if ($envPaths -notcontains $Path) {
-        $envPaths = $envPaths + $Path | where { $_ }
-        $env:Path = $envPaths -join ';'
-    }
-}
 
 # This file is intended to add the current directory 
 # to the system variables (PATH).
@@ -163,17 +109,8 @@ if ($(Udf-GetDir) -eq $pwd)
 }
 
 
-Udf-AddDirToPath($(Udf-GetDir))
-#$NewPath = -join($env:Path, ";$(Udf-GetDir)")
-#Set-Path($NewPath, $true, $true)
-#Add-EnvPath($(Udf-GetDir))
-# $newPath = $(Add-EnvPath($(Udf-GetDir)))
-#Log-Message $newPath
-Log-Message "New Path: $env:Path"
-Log-Message $(Udf-GetDir)
-Start-Process powershell -Verb runAs
-Log-Message "ALLOHA"
-#Bank
+#Udf-AddDirToPath($(Udf-GetDir))
 #Udf-RemoveDirFromPath($(Udf-GetDir))
+Udf-RemoveDirFromPath("C:\Progr")
 Log-Message "Delay for 5 seconds before exit."
 Start-Sleep -s 5
