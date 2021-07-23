@@ -41,8 +41,8 @@ function Udf-AddDirToPath{
         [string]$Path
     )
     $PathArray = $env:Path.Split(";")
-    $RegexStr = [Regex]::Escape($PathArray)
-    $RegexStr = -join("$RegexStr", "$")
+    $RegexStr = [Regex]::Escape($Path)
+    $RegexStr = -join("$RegexStr", "\\?$")
     if ($PathArray -Match $RegexStr)
     {
         Log-Message "'$Path' found in `$env:Path."
@@ -73,17 +73,17 @@ function Udf-RemoveDirFromPath
         [string]$Path
     )
     $PathArray = $env:Path.Split(";")
-    $RegexStr = [Regex]::Escape($PathArray)
-    $RegexStr = -join("$RegexStr", "$")
+    $RegexStr = [Regex]::Escape($Path)
+    $RegexStr = -join("$RegexStr", "\\?$")
     if ($PathArray -Match $RegexStr)
     {
         Log-Message "'$Path' found in `$env:Path."
         Log-Message "Removing $Path from `$env:Path."
         $Remove = $Path
-        $env:Path = ($env:Path.Split(';') | Where-Object -FilterScript {$_ -ne $Remove}) -join ';'
-        [Environment]::SetEnvironmentVariable("Path", $env:Path, "Machine")
-        [Environment]::SetEnvironmentVariable("Path", $env:Path, "Process")
-        refreshenv
+        $newPath = ($env:Path.Split(';') | Where-Object -FilterScript {$_ -ne $Remove}) -join ';'
+        Log-Message $newPath
+        [Environment]::SetEnvironmentVariable("Path", $newPath, "Machine")
+        [Environment]::SetEnvironmentVariable("Path", $newPath, "Process")
         Log-Message "Reboot is required to update PATH."
     }
     else
@@ -109,8 +109,8 @@ if ($(Udf-GetDir) -eq $pwd)
 }
 
 
-#Udf-AddDirToPath($(Udf-GetDir))
+Udf-AddDirToPath($(Udf-GetDir))
 #Udf-RemoveDirFromPath($(Udf-GetDir))
-Udf-RemoveDirFromPath("C:\Progr")
+#Udf-RemoveDirFromPath("C:\Progr")
 Log-Message "Delay for 5 seconds before exit."
 Start-Sleep -s 5
