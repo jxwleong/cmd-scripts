@@ -6,3 +6,12 @@ Get-PnpDevice -PresentOnly | Where-Object { $_.Class -match 'USB' }
 
 echo "`nFriendlyName = USB"
 Get-PnpDevice -PresentOnly | Where-Object { $_.Class -match 'USB' }
+
+$USB_List = Get-PnpDevice -PresentOnly | Where-Object { $_.Class -match 'USB' }
+
+echo "`n`n"
+#echo $USB_List.GetType()
+foreach ($USB in $USB_List)
+{
+    $USB
+}
